@@ -91,45 +91,42 @@ let html5QrCode;
 
 document.getElementById('startScanBtn').addEventListener('click', () => {
     const readerDiv = document.getElementById('reader');
-    
-    // Check if the library loaded correctly
-    if (typeof Html5Qrcode === "undefined") {
-        alert("The barcode library failed to load. Check your internet connection.");
-        return;
-    }
-
     readerDiv.style.display = 'block';
-    
-    if (!html5QrCode) {
-        html5QrCode = new Html5Qrcode("reader");
-    }
 
-    const config = { 
-        fps: 10, 
-        qrbox: { width: 280, height: 180 },
-        aspectRatio: 1.0 
-    };
+    // 1. Get all available cameras first
+    Html5Qrcode.getCameras().then(cameras => {
+        if (cameras && cameras.length > 0) {
+            // 2. Try to find the back camera specifically
+            let backCamera = cameras.find(c => c.label.toLowerCase().includes('back') || c.label.toLowerCase().includes('environment'));
+            
+            // 3. Fallback to the first camera if 'back' isn't labeled clearly
+            let cameraId = backCamera ? backCamera.id : cameras[0].id;
 
-    html5QrCode.start(
-        { facingMode: "environment" }, 
-        config,
-        (decodedText) => {
-            document.getElementById('isbn').value = decodedText;
-            html5QrCode.stop().then(() => {
-                readerDiv.style.display = 'none';
-                document.getElementById('lookupBtn').click(); // Auto-lookup
+            const html5QrCode = new Html5Qrcode("reader");
+            
+            html5QrCode.start(
+                cameraId, 
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 150 },
+                    aspectRatio: 1.0 // Helps mobile focus
+                },
+                (decodedText) => {
+                    document.getElementById('isbn').value = decodedText;
+                    html5QrCode.stop().then(() => {
+                        readerDiv.style.display = 'none';
+                        document.getElementById('lookupBtn').click();
+                    });
+                }
+            ).catch(err => {
+                console.error("Camera Start Error:", err);
+                alert("Mobile Error: " + err);
             });
-        }
-    ).catch((err) => {
-        console.error("Camera Error:", err);
-        if (err.includes("Permission denied")) {
-            alert("You blocked the camera! Please reset permissions in your browser settings.");
-        } else if (err.includes("not found")) {
-            alert("No camera found on this device.");
         } else {
-            alert("Camera error: " + err);
+            alert("No cameras found on this device.");
         }
-        readerDiv.style.display = 'none';
+    }).catch(err => {
+        alert("Camera Access Error: " + err);
     });
 });
 });
