@@ -1,5 +1,6 @@
 <html>
 <head>
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Technow Library Catalog</title>
     <link href='https://fonts.googleapis.com/css?family=Prata' rel='stylesheet'>
@@ -35,7 +36,7 @@
             
 }
 img:hover {
-  animation: shake 0.7s;
+  animation: shake 5s;
   animation-iteration-count: infinite;
 }
 
@@ -52,826 +53,132 @@ img:hover {
   90% { transform: translate(1px, 2px) rotate(0deg); }
   100% { transform: translate(1px, -2px) rotate(-1deg); }
 }
+.btn-edit { background: #89cfdb; color: rgb(0, 0, 0); margin-right: 5px; }
+.btn-delete { background: #f3a69d; color: rgb(0, 0, 0); }
+.btn-edit:hover { background: #6a7072; }
+.btn-delete:hover { background: #c0392b; }
+td button { padding: 5px 10px; font-size: 12px; }
+.book-cover {
+    width: 100px;
+    height: 150px;
+    object-fit: cover; 
+    border-radius: 4px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    background-color: #eee; 
+    display: block;
+}
+
+td:first-child {
+    width: 60px;
+}
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.status-available { background: #d4edda; color: #155724; }
+.status-lent { background: #f8d7da; color: #721c24; }
+
+.btn-toggle { background: #6c757d; color: white; margin-left: 5px; }
        </style>
+
 <body style="margin:0">
 <div style="background-color: black; width:100%; padding-top:15;">
 <img src="logo.jpg" alt="logo" width="80" height="82" class="centerimage" style="margin-bottom:0; margin-top:15;">
 <h1 style="text-align:center; font-size:350%; padding-bottom:27px; color:#ffffff; background-color: black;" class="frenchfont">The Technow Library by Arnav Nandurkar</h1>
 </div>
-<h3 style="text-align:center; font-size:150%;" class="sansserif">insert address</h3>
-<h3 style="text-align:center; font-size:100%;" class="sansserif">insert contact number | arnavnandurkar3@gmail.com</h3><br><hr>
-<h3 style="text-align:center; font-size:200%" class="normiefont"><u>BOOK CATALOG</u></h4>
-<h4 style="text-align:center;" class="frenchfont">Shelf 1: Total: 66</h4>
-<h4 style="text-align:center;" class="frenchfont">SG= Small General Fiction: 20</h4>
+<h3 style="text-align:center; font-size:100%;" class="sansserif">arnavnandurkar3@gmail.com</h3>
+<h3 style="text-align:center; font-size:200%" class="frenchfont">BOOK CATALOG</h4><br><hr>
+<div id="statsBar" style="display: flex; gap: 20px; margin-bottom: 20px; padding: 15px; background: #e9ecef; border-radius: 8px; text-align: center;">
+    <div style="flex: 1;">
+        <h4 style="margin: 0; font-family: sans-serif;">Total Books</h4>
+        <span id="totalCount" style="font-size: 1.5rem; font-weight: bold; font-family: sans-serif;">0</span>
+    </div>
+    <div style="flex: 1; border-left: 1px solid #ccc; border-right: 1px solid #ccc; font-family: sans-serif;">
+        <h4 style="margin: 0; font-family: sans-serif">Lent Out</h4>
+        <span id="lentCount" style="font-size: 1.5rem; font-weight: bold; color: #7fccda;">0</span>
+    </div>
+    <div style="flex: 1;">
+        <h4 style="margin: 0; font-family: sans-serif;">Genres</h4>
+        <span id="genreCount" style="font-size: 1.5rem; font-weight: bold; color: #84a6bd; font-family: sans-serif">0</span>
+    </div>
+</div>
+<div style="display: flex; justify-content: center;">
+<input type="text" id="searchInput" placeholder="Search by title, author, or shelf." style="width: 300px">
+</div> <br>
+<div class="data-controls" style="margin-top: 20px; display: flex; gap: 10px; align-items: center; justify-content:center;">
+    <button id="exportBtn" style="background: #a2c5d6; color: rgb(0, 0, 0); padding: 10px; border-radius: 5px; cursor: pointer;">Backup Library (Download JSON data)</button>
+    
+    <label for="importFile" class="custom-file-upload" style="background: #9e9e9e; color: white; padding: 10px; border-radius: 5px; cursor: pointer; border: 2px solid black; font-family: Arial, Helvetica, sans-serif;">
+      Restore Library (Upload JSON data)
+    </label>
+    <input type="file" id="importFile" style="display: none;" accept=".json">
+</div>
+<br>
+<table id="libraryTable" style="margin-left:auto; margin-right:auto;" class="sansserif">
+  <thead>
+    <tr>
+      <th style="background-color: #b7dfec;">Cover</th>
+      <th style="background-color: #b7dfec;">Title</th>
+      <th style="background-color: #b7dfec;">Author</th>
+      <th style="background-color: #b7dfec;">Genre</th>
+      <th style="background-color: #b7dfec;">ISBN</th>
+      <th style="background-color: #b7dfec;">Shelf</th>
+      <th style="background-color: #b7dfec;">Date acquired</th>
+      <th style="background-color: #b7dfec;">Format</th>
+      <th style="background-color: #b7dfec;">Status</th>
+      <th style="background-color: #b7dfec;">Actions</th>
+    </tr>
+  </thead>
+  <tbody id="tableBody"></tbody>
+</table>
+    <h3 class="sansserif" style="text-align:center">Add New Book</h3>
+<div class="form-section" style="display:flex; justify-content: center;">
+    
+        <form id="bookForm">
+            <div class="input-row">
+                <input type="text" id="isbn" placeholder="ISBN Number">
+                <button type="button" id="lookupBtn">Lookup ISBN</button>
+            </div>
+            <div class="input-row">
+                <input type="text" id="title" placeholder="Title" required>
+                <input type="text" id="author" placeholder="Author" required>
+            </div>
+            <div class="input-row">
+                <input type="text" id="shelf" placeholder="Shelf">
+                <input type="text" id="date" placeholder="Date of acquisition">
+                <select id="formFactor">
+                    <option value="Small Paperback">Small Paperback</option>
+                    <option value="Small Hardcover">Small Hardcover</option>
+                    <option value="Medium Paperback">Medium Paperback</option>
+                    <option value="Medium Hardcover">Medium Hardcover</option>
+                    <option value="Large Paperback">Large Paperback</option>
+                    <option value="Large Hardcover">Large Hardcover</option>
+                </select>
+            </div>
+            <div class="input-row">
+    <select id="genre">
+        <option value="General">Select Genre</option>
+        <option value="Fiction">General Fiction</option>
+        <option value="Non-Fiction">Non-Fiction</option>
+        <option value="Sci-Fi">Science Fiction</option>
+        <option value="Fantasy">Fantasy</option>
+        <option value="Comics">Comics</option>
+        <option value="Reference">Photography/Reference</option>
+    </select>
+    <input type="text" id="borrower" placeholder="Lent to (leave blank if available)">
+</div>
+            <button type="submit" id="addBtn" style="background-color:#b4dbf5;">Add to Catalog</button>
+        </form>
+    </div>
+</section>
 
 
-<table style="width:90%;" class="center">
-  <tr style="background-color: #494b4b;color:#ffffff" class="sansserif">
-    <th>Number</th>
-    <th>Book ID</th>
-    <th>Name</th>
-    <th>Author</th>
-    <th>Publisher</th>
-    <th>Details</th>
-  </tr>
-  <tr class="sansserif">
-    <td>1</td>
-    <td>SG1-1</td>
-    <td>A Child's History of England | Christmas Stories</td>
-    <td>Charles Dickens</td>
-    <td>Odhams Press London</td>
-    <td>Acquired November 2020, printed in 1910</td>
-  </tr>
-  <tr class="sansserif">
-    <td>2</td>
-    <td>SG1-2</td>
-    <td>King Arthur's Knights</td>
-    <td>Henry Gilbert</td>
-    <td>Thomas Nelson and Sons Limited</td>
-    <td>Acquired November 2020, printed in 1921</td>
-  </tr>
-  <tr class="sansserif">
-    <td>3</td>
-    <td>SG1-3</td>
-    <td>Twenty Thousand Leagues Under the Sea</td>
-    <td>Jules Verne</td>
-    <td>Fingerprint Classics</td>
-    <td>NA</td>
-  </tr>
-  <tr class="sansserif">
-    <td>4</td>
-    <td>SG1-4</td>
-    <td>Journey to the Centre of the Earth</td>
-    <td>Jules Verne</td>
-    <td>Fingerprint Classics</td>
-    <td>-</td>
-  </tr>
-  <tr class="sansserif">
-    <td>5</td>
-    <td>SG1-5</td>
-    <td>Around the World in Eighty Days</td>
-    <td>Jules Verne</td>
-    <td>Fingerprint Classics</td>
-    <td>-</td>
-  </tr>
-  <tr class="sansserif">
-    <td>6</td>
-    <td>SG1-6</td>
-    <td>War of the Worlds</td>
-    <td>H. G. Wells</td>
-    <td>Fingerprint Classics</td>
-    <td>-</td>
-  </tr>
-  <tr class="sansserif">
-    <td>7</td>
-    <td>SG1-7</td>
-    <td>The Hitchhiker's Guide to the Galaxy (compilation of all books)</td>
-    <td>Douglas Adams</td>
-    <td>Pan Macmillan</td>
-    <td>Purchased 4th August 2023</td>
-  </tr>
-  <tr class="sansserif">
-    <td>8</td>
-    <td>SG1-8</td>
-    <td>The Book Thief</td>
-    <td>Markus Zusak</td>
-    <td>Penguin Random House</td>
-    <td>NA</td>
-  </tr>
-  <tr class="sansserif">
-    <td>9</td>
-    <td>SG1-9</td>
-    <td>Dune</td>
-    <td>Frank Herbert</td>
-    <td>Penguin Random House</td>
-    <td>-e</td>
-  </tr>
-  <tr class="sansserif">
-    <td>10</td>
-    <td>SG1-10</td>
-    <td>The Hobbit</td>
-    <td>J. R. R. Tolkien</td>
-    <td>HarperCollins</td>
-    <td>Part of a boxed set.</td>
-  </tr>
-  <tr class="sansserif">
-    <td>11</td>
-    <td>SG1-11</td>
-    <td>The Fellowship of the Ring (Part One: The Lord of the Rings)</td>
-    <td>J. R. R. Tolkien</td>
-    <td>HarperCollins</td>
-    <td>Part of a boxed set.</td>
-  </tr>
-  <tr class="sansserif">
-    <td>12</td>
-    <td>SG1-12</td>
-    <td>The Two Towers (Part Two: The Lord of the Rings)</td>
-    <td>J. R. R. Tolkien</td>
-    <td>HarperCollins</td>
-    <td>Part of a boxed set.</td>
-  </tr>
-  <tr class="sansserif">
-    <td>13</td>
-    <td>SG1-13</td>
-    <td>The Return of the King (Part Three: The Lord of the Rings)</td>
-    <td>J. R. R. Tolkien</td>
-    <td>HarperCollins</td>
-    <td>Part of a boxed set.</td>
-  </tr>
-  <tr class="sansserif">
-    <td>14</td>
-    <td>SG1-14</td>
-    <td>Prelude to the Foundation</td>
-    <td>Isaac Asimov</td>
-    <td>HarperCollins</td>
-    <td>Acquired 26th March 2024.</td>
-  </tr>
-  <tr class="sansserif">
-    <td>15</td>
-    <td>SG1-15</td>
-    <td>Forward the Foundation</td>
-    <td>Isaac Asimov</td>
-    <td>HarperCollins</td>
-    <td>Purchased on 8th November 2023</td>
-  </tr>
-  <tr class="sansserif">
-    <td>16</td>
-    <td>SG1-16</td>
-    <td>Foundation</td>
-    <td>Isaac Asimov</td>
-    <td>HarperCollins</td>
-    <td>-</td>
-  </tr>
-  <tr class="sansserif">
-    <td>17</td>
-    <td>SG1-17</td>
-    <td>Foundation and Empire</td>
-    <td>Isaac Asimov</td>
-    <td>HarperCollins</td>
-    <td>NA</td>
-  </tr>
-  <tr class="sansserif">
-    <td>18</td>
-    <td>SG1-18</td>
-    <td>Second Foundation</td>
-    <td>Isaac Asimov</td>
-    <td>HarperCollins</td>
-    <td>NA</td>
-  </tr>
-  <tr class="sansserif">
-    <td>19</td>
-    <td>SG1-19</td>
-    <td>Foundation's Edge</td>
-    <td>Isaac Asimov</td>
-    <td>HarperCollins</td>
-    <td>NA</td>
-  </tr>
-  <tr class="sansserif">
-    <td>20</td>
-    <td>SG1-20</td>
-    <td>End of Eternity</td>
-    <td>Isaac Asimov</td>
-    <td>HarperCollins</td>
-    <td>Acquired 26th March 2024.</td>
-  </tr>
-  <tr class="sansserif">
-    <td>21</td>
-    <td>SG1-21</td>
-    <td>1984</td>
-    <td>George Orwell</td>
-    <td>HarperCollins</td>
-    <td>-</td>
-  </tr>
-</table>
-<h4 style="text-align:center;" class="frenchfont">Shelf 1: Total: 67</h4>
-<h4 style="text-align:center;" class="frenchfont">SGF= Small General Non Fiction: 46</h4>
-<table style="width:90%;" class="center">
-    <tr style="background-color: #494b4b;color:#ffffff" class="sansserif">
-      <th>Number</th>
-      <th>Book ID</th>
-      <th>Name</th>
-      <th>Author</th>
-      <th>Publisher</th>
-      <th>Details</th>
-    </tr>
-    <tr class="sansserif">
-        <td>1</td>
-        <td>SGF1-1</td>
-        <td>Terry Deary's Terribly True Spy Stories</td>
-        <td>Terry Deary</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>2</td>
-        <td>SGF1-2</td>
-        <td>Horrible Science: Chemical Chaos</td>
-        <td>Nick Arnold</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>3</td>
-        <td>SGF1-3</td>
-        <td>Horrible Science: Killer Energy</td>
-        <td>Nick Arnold</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>4</td>
-        <td>SGF1-4</td>
-        <td>Horrible Science: Vicious Veg</td>
-        <td>Nick Arnold</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>5</td>
-        <td>SGF1-5</td>
-        <td>Horrible Science: Bulging Brains</td>
-        <td>Nick Arnold</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>6</td>
-        <td>SGF1-6</td>
-        <td>Horrible Science: Shocking Electricity</td>
-        <td>Nick Arnold</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>7</td>
-        <td>SGF1-7</td>
-        <td>Horrible Science: Painful Poison</td>
-        <td>Nick Arnold</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>8</td>
-        <td>SGF1-8</td>
-        <td>Horrible Science: Fatal Forces</td>
-        <td>Nick Arnold</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>9</td>
-        <td>SGF1-9</td>
-        <td>Horrible Science: Ugly Bugs</td>
-        <td>Nick Arnold</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>10</td>
-        <td>SGF1-10</td>
-        <td>Horrible Science: Explosive Experiments</td>
-        <td>Nick Arnold</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>11</td>
-        <td>SGF1-11</td>
-        <td>Horrible Science: The Terrible Truth About Time</td>
-        <td>Nick Arnold</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>12</td>
-        <td>SGF1-12</td>
-        <td>Horrible Science: Microscopic Monsters</td>
-        <td>Nick Arnold</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>13</td>
-        <td>SGF1-13</td>
-        <td>Horrible Science: The Fight For Flight</td>
-        <td>Nick Arnold</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>14</td>
-        <td>SGF1-14</td>
-        <td>Horrible Science: Evil Inventions</td>
-        <td>Nick Arnold</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>15</td>
-        <td>SGF1-15</td>
-        <td>Horrible Histories: The Slimy Stuarts</td>
-        <td>Terry Deary</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>16</td>
-        <td>SGF1-16</td>
-        <td>Horrible Histories: The Rotten Romans</td>
-        <td>Terry Deary</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>17</td>
-        <td>SGF1-17</td>
-        <td>Horrible Histories: The Smashin' Saxons and the Stormin' Normans</td>
-        <td>Terry Deary</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>18</td>
-        <td>SGF1-18</td>
-        <td>Horrible Histories: The Vicious Vikings</td>
-        <td>Terry Deary</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>19</td>
-        <td>SGF1-19</td>
-        <td>Horrible Histories: The Barmy British Empire</td>
-        <td>Terry Deary</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>20</td>
-        <td>SGF1-20</td>
-        <td>Horrible Histories: The Blitzed Brits</td>
-        <td>Terry Deary</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>21</td>
-        <td>SGF1- 21</td>
-        <td>Horrible Histories: Woeful Second World War</td>
-        <td>Terry Deary</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>22</td>
-        <td>SGF1-22</td>
-        <td>Horrible Histories: Terrible Tudors</td>
-        <td>Terry Deary</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>23</td>
-        <td>SGF1-23</td>
-        <td>Horrible Histories: Savage Stone Age</td>
-        <td>Terry Deary</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>24</td>
-        <td>SGF1-24</td>
-        <td>Horrible Histories: Measly Middle Ages</td>
-        <td>Terry Deary</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>25</td>
-        <td>SGF1-25</td>
-        <td>Horrible Histories: Smashing Saxons</td>
-        <td>Terry Deary</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>26</td>
-        <td>SGF1-26</td>
-        <td>Horrible Histories: Villanous Victorians</td>
-        <td>Terry Deary</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>27</td>
-        <td>SGF1-27</td>
-        <td>Horrible Histories: Groovy Greeks</td>
-        <td>Terry Deary</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>28</td>
-        <td>SGF1-28</td>
-        <td>Horrible Histories: Awesome Egyptians</td>
-        <td>Terry Deary</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>29</td>
-        <td>SGF1-29</td>
-        <td>Horrible Histories: Gorgeous Georgians</td>
-        <td>Terry Deary</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>30</td>
-        <td>SGF1-30</td>
-        <td>Horrible Histories: Terrible Trenches</td>
-        <td>Terry Deary</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>31</td>
-        <td>SGF1- 31</td>
-        <td>Horrible Histories: Pirates Handbook</td>
-        <td>Terry Deary</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>32</td>
-        <td>SGF1-32</td>
-        <td>Horrible Histories: Villains Handbook</td>
-        <td>Terry Deary</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>33</td>
-        <td>SGF1-33</td>
-        <td>Horrible Geography: Stormy Weather</td>
-        <td>Anita Ganeri</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>34</td>
-        <td>SGF1-34</td>
-        <td>Horrible Geopgraphy: Earth Shattering Earthquakes</td>
-        <td>Anita Ganeri</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>35</td>
-        <td>SGF1-35</td>
-        <td>Horrible Geography: Bloomin' Rainforests</td>
-        <td>Anita Ganeri</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>36</td>
-        <td>SGF1-36</td>
-        <td>Murderous Maths: Savage Shapes</td>
-        <td>Kjartan Poskitt</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>37</td>
-        <td>SGF1-37</td>
-        <td>Henry VIII and his Chopping Block</td>
-        <td>Alan MacDonald</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>38</td>
-        <td>SGF1-38</td>
-        <td>Modern Warships</td>
-        <td>Tony Gibbons, David Miller</td>
-        <td>Smithmark</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>39</td>
-        <td>SGF1-39</td>
-        <td>एक्झॅम वॉरीयर्स</td>
-        <td>Narendra Modi</td>
-        <td>National Book Trust India</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>40</td>
-        <td>SGF1-40</td>
-        <td>Raypithora Samrat Pruthviraj Chouhan (Marathi)</td>
-        <td>Narsinha Pardeshi-Baghel</td>
-        <td>Majestic Publishing House</td>
-        <td>-</td>
-      </tr>
-      <tr class="sansserif">
-        <td>41</td>
-        <td>SGF1- 41</td>
-        <td>Chhatrapati Shivaji Maharaj</td>
-        <td>Narhar Kurundkar</td>
-        <td>Vishwakarma Publications</td>
-        <td>-</td>
-      </tr>
-      <tr class="sansserif">
-        <td>42</td>
-        <td>SGF1-42</td>
-        <td>The Power of Now</td>
-        <td>Eckhart Tolle</td>
-        <td>Yogi Impressions</td>
-        <td>-</td>
-      </tr>
-      <tr class="sansserif">
-        <td>43</td>
-        <td>SGF1-43</td>
-        <td>India's Secularism: New Name for National Subversion</td>
-        <td>Sita Ram Goel</td>
-        <td>-</td>
-      </tr>
-      <tr class="sansserif">
-        <td>44</td>
-        <td>SGF1-44</td>
-        <td>Hindus in Hindu Rashtra</td>
-        <td>Anand Ranganathan</td>
-        <td>BluOne Ink</td>
-        <td>-</td>
-      </tr>
-      <tr class="sansserif">
-        <td>45</td>
-        <td>SGF1-45</td>
-        <td>The Book of Life</td>
-        <td>J. Krishnamurti</td>
-        <td>Penguin Random House</td>
-        <td>-</td>
-      </tr>
-      <tr class="sansserif">
-        <td>46</td>
-        <td>SGF1-46</td>
-        <td>Thoughts on the Gita</td>
-        <td>Swami Vivekananda</td>
-        <td>Advaita Ashram</td>
-        <td>-</td>
-      </tr>
-</table>
-<h4 style="text-align:center;" class="frenchfont">Shelf 2: Total: 0</h4>
-<h4 style="text-align:center;" class="frenchfont">SG= Small General Fiction: 17</h4>
-<table style="width:90%;" class="center">
-    <tr style="background-color: #494b4b;color:#ffffff" class="sansserif">
-      <th>Number</th>
-      <th>Book ID</th>
-      <th>Name</th>
-      <th>Author</th>
-      <th>Publisher</th>
-      <th>Details</th>
-    </tr>
-    <tr class="sansserif">
-        <td>1</td>
-        <td>SG2-1</td>
-        <td>The Prisoner of Zenda</td>
-        <td>Anthony Hope</td>
-        <td>Wordsworth Classics</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>2</td>
-        <td>SG2-2</td>
-        <td>Treasure Hunt</td>
-        <td>Rachel Morrison</td>
-        <td>Books Noir</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>3</td>
-        <td>SG2-3</td>
-        <td>Sherlock Holmes: The Hound of the Baskervilles</td>
-        <td>Sir Arthur Conan Doyle</td>
-        <td>Wordsworth Classics</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>4</td>
-        <td>SG2-4</td>
-        <td>Antonty and Cleopatra</td>
-        <td>William Shakespeare</td>
-        <td>Orchard Classics</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>5</td>
-        <td>SG2-5</td>
-        <td>The Mysterious Island</td>
-        <td>Jules Verne</td>
-        <td>Projapoti</td>
-        <td>-</td>
-      </tr>
-      <tr class="sansserif">
-        <td>6</td>
-        <td>SG2-6</td>
-        <td>The Wind in the Willows</td>
-        <td>Kenneth Graham</td>
-        <td>Brimax</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>7</td>
-        <td>SG2-7</td>
-        <td>Goshtiroop Shivaji (Marathi)</td>
-        <td>L. G. Paranjape (Illustrated by Gopal Nandurkar)</td>
-        <td>Wordsworth Classics</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>8</td>
-        <td>SG2-8</td>
-        <td>Gangsta Granny</td>
-        <td>David Walliams</td>
-        <td>HarperCollins</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>9</td>
-        <td>SG2-9</td>
-        <td>Harry Potter and the Philosopher's Stone (First Edition)</td>
-        <td>J. K. Rowling</td>
-        <td>Bloomsbury</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>10</td>
-        <td>SG2-10</td>
-        <td>The Magic Drum and Other Stories</td>
-        <td>Sudha Murty</td>
-        <td>Penguin Random House</td>
-        <td>-</td>
-      </tr>
-      <tr class="sansserif">
-        <td>11</td>
-        <td>SG2-11</td>
-        <td>The Jungle Book</td>
-        <td>Rudyard Kipling</td>
-        <td>Daily Mail</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>12</td>
-        <td>SG2-12</td>
-        <td>The Scarlet Pimpernel</td>
-        <td>Baroness Orczy</td>
-        <td>Daily Mail</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>13</td>
-        <td>SG2-13</td>
-        <td>Robinson Crusoe</td>
-        <td>Daniel Defoe</td>
-        <td>Daily Mail</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>14</td>
-        <td>SG2-14</td>
-        <td>Anne of Green Gables</td>
-        <td>Lucy Maud Montgomery</td>
-        <td>Daily Mail</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>15</td>
-        <td>SG2-15</td>
-        <td>Postman Pat</td>
-        <td>John Cunliffe</td>
-        <td>Treasure Press</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>16</td>
-        <td>SG2-16</td>
-        <td>Treasure Island</td>
-        <td>Robert Louis Stevenson</td>
-        <td>Macaw</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>17</td>
-        <td>SG2-17</td>
-        <td>The Adventures of Huckleberry Finn</td>
-        <td>Mark Twain</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-</table>
-<h4 style="text-align:center;" class="frenchfont">Shelf 2: Total: 0</h4>
-<h4 style="text-align:center;" class="frenchfont">SGF= Small General Non Fiction: 0</h4>
-<table style="width:90%;" class="center">
-    <tr style="background-color: #494b4b;color:#ffffff" class="sansserif">
-      <th>Number</th>
-      <th>Book ID</th>
-      <th>Name</th>
-      <th>Author</th>
-      <th>Publisher</th>
-      <th>Details</th>
-    </tr>
-    <tr class="sansserif">
-        <td>1</td>
-        <td>SGF2-1</td>
-        <td>The Bloody History of Knights</td>
-        <td>John Farman</td>
-        <td>Red Fox</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>2</td>
-        <td>SGF2-2</td>
-        <td>The Bloody History of Spies</td>
-        <td>John Farman</td>
-        <td>Red Fox</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>3</td>
-        <td>SGF2-3</td>
-        <td>National Audubon Society Field Guide: Weather</td>
-        <td>Jonathan D.W. Kahl</td>
-        <td>Scholastic</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>4</td>
-        <td>SGF2-4</td>
-        <td>सेस्ना १७२ (Illustrated by Gopal Nandurkar)</td>
-        <td>Satishchandra Soman</td>
-        <td>Indrayani Sahitya</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>5</td>
-        <td>SGF2-5</td>
-        <td>मुठेवरचा धोबी</td>
-        <td>Kiran Purandare</td>
-        <td>Rajhans Prakashan</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>6</td>
-        <td>SGF2-6</td>
-        <td>Birds of our Neighbourhood</td>
-        <td>Kiran Purandare</td>
-        <td>Jyotsna Prakashan</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>7</td>
-        <td>SGF2-7</td>
-        <td>The Book of Indian Birds</td>
-        <td>Salim Ali</td>
-        <td>Oxford University Press</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>8</td>
-        <td>SGF2-8</td>
-        <td>Awareness</td>
-        <td>Osho</td>
-        <td>St. Martin's Griffin</td>
-        <td>-</td>
-      </tr>
-      <tr class="sansserif">
-        <td>9</td>
-        <td>SGF2-9</td>
-        <td>Education and the Significance of Life</td>
-        <td>J. Krishnamurti</td>
-        <td>Krishnamurti Foundation</td>
-        <td>-</td>
-      </tr>
-      <tr class="sansserif">
-        <td>10</td>
-        <td>SGF2-10</td>
-        <td>Check Your Own I.Q.</td>
-        <td>H. J. Eysenck</td>
-        <td>Penguin Random House</td>
-        <td>NA</td>
-      </tr>
-      <tr class="sansserif">
-        <td>11</td>
-        <td>SGF2-11</td>
-        <td>Almanac 2018</td>
-        <td>Various</td>
-        <td>National Geographic</td>
-        <td>NA</td>
-      </tr>
-      </table>
-<br><br>
-<h3 class="sansserif" style="text-align: center;">©Arnav Nandurkar 2024<br> All books are owned and maintained by Arnav Nandurkar.<br>
+<br><br><hr>
+<h3 class="sansserif" style="text-align: center;">©Arnav Nandurkar 2026<br> All books are owned and maintained by Arnav Nandurkar.<br>
 The Technow Library is a private library. No books will be lent (exceptions exist).</h3>
+<script src="script.js"></script>
 </body>
 </html>
