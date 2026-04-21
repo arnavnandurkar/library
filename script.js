@@ -43,43 +43,12 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(err => alert("API Error. Check your internet connection."));
     });
 
-  
     const form = document.getElementById('bookForm');
     const addBtn = document.getElementById('addBtn');
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
-        const html5QrCode = new Html5Qrcode("reader");
-const readerDiv = document.getElementById('reader');
-
-document.getElementById('startScanBtn').addEventListener('click', () => {
-
-    readerDiv.style.display = 'block';
-
-    const config = { fps: 10, qrbox: { width: 250, height: 150 } };
-
-    html5QrCode.start(
-        { facingMode: "environment" }, 
-        config,
-        (decodedText) => {
-      
-            console.log("Barcode found: ", decodedText);
         
-            document.getElementById('isbn').value = decodedText;
-      
-            html5QrCode.stop().then(() => {
-                readerDiv.style.display = 'none';
-                // 3. Automatically trigger your lookup function!
-                document.getElementById('lookupBtn').click();
-            });
-        },
-        (errorMessage) => {
-        
-        }
-    ).catch((err) => {
-        alert("Camera error: " + err);
-    });
-});
 
         const bookData = {
     title: document.getElementById('title').value,
@@ -117,6 +86,52 @@ document.getElementById('startScanBtn').addEventListener('click', () => {
         renderTable(filtered);
     
     });
+
+let html5QrCode;
+
+document.getElementById('startScanBtn').addEventListener('click', () => {
+    const readerDiv = document.getElementById('reader');
+    
+    // Check if the library loaded correctly
+    if (typeof Html5Qrcode === "undefined") {
+        alert("The barcode library failed to load. Check your internet connection.");
+        return;
+    }
+
+    readerDiv.style.display = 'block';
+    
+    if (!html5QrCode) {
+        html5QrCode = new Html5Qrcode("reader");
+    }
+
+    const config = { 
+        fps: 10, 
+        qrbox: { width: 280, height: 180 },
+        aspectRatio: 1.0 
+    };
+
+    html5QrCode.start(
+        { facingMode: "environment" }, 
+        config,
+        (decodedText) => {
+            document.getElementById('isbn').value = decodedText;
+            html5QrCode.stop().then(() => {
+                readerDiv.style.display = 'none';
+                document.getElementById('lookupBtn').click(); // Auto-lookup
+            });
+        }
+    ).catch((err) => {
+        console.error("Camera Error:", err);
+        if (err.includes("Permission denied")) {
+            alert("You blocked the camera! Please reset permissions in your browser settings.");
+        } else if (err.includes("not found")) {
+            alert("No camera found on this device.");
+        } else {
+            alert("Camera error: " + err);
+        }
+        readerDiv.style.display = 'none';
+    });
+});
 });
 
 
