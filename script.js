@@ -92,14 +92,9 @@ let html5QrCode;
 document.getElementById('startScanBtn').addEventListener('click', () => {
     const readerDiv = document.getElementById('reader');
     readerDiv.style.display = 'block';
-
-    // 1. Get all available cameras first
     Html5Qrcode.getCameras().then(cameras => {
         if (cameras && cameras.length > 0) {
-            // 2. Try to find the back camera specifically
             let backCamera = cameras.find(c => c.label.toLowerCase().includes('back') || c.label.toLowerCase().includes('environment'));
-            
-            // 3. Fallback to the first camera if 'back' isn't labeled clearly
             let cameraId = backCamera ? backCamera.id : cameras[0].id;
 
             const html5QrCode = new Html5Qrcode("reader");
