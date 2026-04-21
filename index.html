@@ -83,6 +83,58 @@ td:first-child {
 .status-lent { background: #f8d7da; color: #721c24; }
 
 .btn-toggle { background: #6c757d; color: white; margin-left: 5px; }
+
+@media screen and (max-width: 600px) {
+
+    table thead {
+        display: none;
+    }
+
+    table, tbody, tr, td {
+        display: block;
+        width: 100%;
+    }
+
+    tr {
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        background: #fff;
+    }
+
+    td {
+        text-align: right; 
+        padding: 8px 10px;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        display: flex;
+        justify-content: space-between; 
+        align-items: center;
+    }
+
+    td:first-child {
+        justify-content: center; 
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 15px;
+    }
+
+    .book-cover {
+        width: 100px; 
+        height: 150px;
+    }
+
+    td:nth-of-type(2):before { content: "Title:"; font-weight: bold; }
+    td:nth-of-type(3):before { content: "Author:"; font-weight: bold; }
+    td:nth-of-type(4):before { content: "Genre:"; font-weight: bold; }
+    td:nth-of-type(5):before { content: "ISBN:"; font-weight: bold; }
+    td:nth-of-type(6):before { content: "Shelf:"; font-weight: bold; }
+    td:nth-of-type(7):before { content: "Date Acquired:"; font-weight: bold; }
+    td:nth-of-type(8):before { content: "Format"; font-weight: bold; }
+    td:nth-of-type(9):before { content: "Status:"; font-weight: bold; }
+    td:nth-of-type(10):before { content: "Actions"; font-weight: bold; }
+}
        </style>
 
 <body style="margin:0">
@@ -142,10 +194,10 @@ td:first-child {
             <div class="input-row">
     <input type="text" id="isbn" placeholder="ISBN Number">
     <button type="button" id="lookupBtn">Lookup ISBN</button>
-    <button type="button" id="startScanBtn" style="background: #673ab7; color: white;">📷 Scan Barcode</button>
+    <button type="button" id="startScanBtn" style="background: #1674aa; color: white;">Scan Barcode</button>
 </div>
 
-<div id="reader" style="width: 100%; max-width: 400px; margin: 10px auto; display: none; border: 2px solid #673ab7; border-radius: 8px; overflow: hidden;"></div>
+<div id="reader" style="width: 100%; max-width: 400px; margin: 10px auto; display: none; border: 2px solid #1674aa; border-radius: 8px; overflow: hidden;"></div>
             <div class="input-row">
                 <input type="text" id="title" placeholder="Title" required>
                 <input type="text" id="author" placeholder="Author" required>
