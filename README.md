@@ -6,3 +6,6 @@ Features:
 3. Ability to track lending of books easily.
 4. Ability to import and export entered data as JSON file for storage.
 5. The following parameters can be added: Title, author, ISBN, genre, date of acquisition, shelf, format, availability status.
+
+IMPORTANT: Note that books added are stored in the browser local storage, hence they will be deleted if browser data is cleared.
+Please download your catalog as a JSON file from the dedicated button to prevent loss of data.
