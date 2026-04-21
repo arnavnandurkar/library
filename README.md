@@ -9,3 +9,4 @@ Features:
 
 IMPORTANT: Note that books added are stored in the browser local storage, hence they will be deleted if browser data is cleared.
 Please download your catalog as a JSON file from the dedicated button to prevent loss of data.
+Base books.json files includes one example book. You may add books directly in the file.
