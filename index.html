@@ -7,6 +7,7 @@
     <link href='https://fonts.googleapis.com/css?family=Red+Hat+Display' rel='stylesheet'>
     <link href='https://fonts.googleapis.com/css?family=Advent+Pro' rel='stylesheet'>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
     <style>
         th, td {
@@ -139,9 +140,12 @@ td:first-child {
     
         <form id="bookForm">
             <div class="input-row">
-                <input type="text" id="isbn" placeholder="ISBN Number">
-                <button type="button" id="lookupBtn">Lookup ISBN</button>
-            </div>
+    <input type="text" id="isbn" placeholder="ISBN Number">
+    <button type="button" id="lookupBtn">Lookup ISBN</button>
+    <button type="button" id="startScanBtn" style="background: #673ab7; color: white;">📷 Scan Barcode</button>
+</div>
+
+<div id="reader" style="width: 100%; max-width: 400px; margin: 10px auto; display: none; border: 2px solid #673ab7; border-radius: 8px; overflow: hidden;"></div>
             <div class="input-row">
                 <input type="text" id="title" placeholder="Title" required>
                 <input type="text" id="author" placeholder="Author" required>

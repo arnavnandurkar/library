@@ -49,6 +49,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
+        const html5QrCode = new Html5Qrcode("reader");
+const readerDiv = document.getElementById('reader');
+
+document.getElementById('startScanBtn').addEventListener('click', () => {
+
+    readerDiv.style.display = 'block';
+
+    const config = { fps: 10, qrbox: { width: 250, height: 150 } };
+
+    html5QrCode.start(
+        { facingMode: "environment" }, 
+        config,
+        (decodedText) => {
+      
+            console.log("Barcode found: ", decodedText);
+        
+            document.getElementById('isbn').value = decodedText;
+      
+            html5QrCode.stop().then(() => {
+                readerDiv.style.display = 'none';
+                // 3. Automatically trigger your lookup function!
+                document.getElementById('lookupBtn').click();
+            });
+        },
+        (errorMessage) => {
+        
+        }
+    ).catch((err) => {
+        alert("Camera error: " + err);
+    });
+});
 
         const bookData = {
     title: document.getElementById('title').value,
@@ -84,6 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
             b.shelf.toLowerCase().includes(term)
         );
         renderTable(filtered);
+    
     });
 });
 
