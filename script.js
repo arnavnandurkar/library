@@ -2,9 +2,7 @@ let books = [];
 let editIndex = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("Library System Online.");
-
-    const savedBooks = localStorage.getItem('myLibraryData');
+    const savedBooks = localStorage.getItem('librarydata');
     if (savedBooks) {
         books = JSON.parse(savedBooks);
         renderTable(books);
@@ -16,15 +14,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderTable(books);
                 saveToLocalStorage();
             })
-            .catch(err => console.log("Starting with empty library."));
     }
 
     const lookupBtn = document.getElementById('lookupBtn');
     lookupBtn.addEventListener('click', () => {
         const isbn = document.getElementById('isbn').value.replace(/[- ]/g, "").trim();
-        if (!isbn) return alert("Please enter an ISBN first.");
+        if (!isbn) return alert("Enter ISBN first.");
 
-        console.log("Searching for ISBN:", isbn);
         const url = `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`;
 
         fetch(url)
@@ -34,10 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data[bookKey]) {
                     const info = data[bookKey];
                     document.getElementById('title').value = info.title || "";
-                    document.getElementById('author').value = info.authors ? info.authors[0].name : "Unknown Author";
-                    console.log("Book details auto-filled.");
+                    document.getElementById('author').value = info.authors ? info.authors[0].name : "Author Unknown";
                 } else {
-                    alert("Book not found in Open Library database.");
+                    alert("Book not found.");
                 }
             })
             .catch(err => alert("API Error. Check your internet connection."));
@@ -64,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
           
             books[editIndex] = bookData;
             editIndex = null;
-            addBtn.textContent = "Add to Library List";
+            addBtn.textContent = "Add to Catalog";
             addBtn.style.background = "#b4dbf5";
         } else {
             
@@ -104,7 +99,7 @@ document.getElementById('startScanBtn').addEventListener('click', () => {
                 {
                     fps: 10,
                     qrbox: { width: 250, height: 150 },
-                    aspectRatio: 1.0 // Helps mobile focus
+                    aspectRatio: 1.0 
                 },
                 (decodedText) => {
                     document.getElementById('isbn').value = decodedText;
@@ -118,10 +113,10 @@ document.getElementById('startScanBtn').addEventListener('click', () => {
                 alert("Mobile Error: " + err);
             });
         } else {
-            alert("No cameras found on this device.");
+            alert("No camera detected.");
         }
     }).catch(err => {
-        alert("Camera Access Error: " + err);
+        alert("Camera cannot be accessed " + err);
     });
 });
 });
@@ -134,7 +129,7 @@ function renderTable(data) {
     data.forEach((book, index) => {
         const coverUrl = book.isbn 
             ? `https://covers.openlibrary.org/b/isbn/${book.isbn.trim()}-M.jpg?default=false` 
-            : 'https://via.placeholder.com/50x75?text=No+Cover';
+            : 'https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713';
 
         const isLent = book.borrower && book.borrower.trim() !== "";
         const statusClass = isLent ? 'status-lent' : 'status-available';
@@ -142,7 +137,7 @@ function renderTable(data) {
 
         tbody.innerHTML += `
             <tr>
-                <td><img src="${coverUrl}" class="book-cover" onerror="this.src='https://via.placeholder.com/50x75?text=N/A'"></td>
+                <td><img src="${coverUrl}" class="book-cover" onerror="this.src='https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713'"></td>
                 <td><strong>${book.title}</strong></td>
                 <td>${book.author}</td>
                 <td>${book.genre || 'General'}</td>
@@ -163,11 +158,11 @@ function renderTable(data) {
     });
 }
 function saveToLocalStorage() {
-    localStorage.setItem('myLibraryData', JSON.stringify(books));
+    localStorage.setItem('librarydata', JSON.stringify(books));
 }
 
 function deleteBook(index) {
-    if (confirm("Delete this book from the catalogue?")) {
+    if (confirm("Delete this book from the catalog?")) {
         books.splice(index, 1);
         saveToLocalStorage();
         renderTable(books);
@@ -193,7 +188,7 @@ function editBook(index) {
     window.scrollTo(0, 0);
 }
 document.getElementById('exportBtn').addEventListener('click', () => {
-    if (books.length === 0) return alert("Your library is empty!");
+    if (books.length === 0) return alert("Your library is empty.");
 
     const dataStr = JSON.stringify(books, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
@@ -221,7 +216,7 @@ document.getElementById('importFile').addEventListener('change', (e) => {
                 alert("Library restored successfully!");
             }
         } catch (err) {
-            alert("Error: This file doesn't look like a valid library backup.");
+            alert("Error: Invalid file.");
         }
     };
     reader.readAsText(file);
